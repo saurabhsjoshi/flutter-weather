@@ -44,6 +44,20 @@ class Home extends StatelessWidget {
 
   /// Get the weather view
   Widget getWeatherView(Weather weather) {
-    return ListView();
+    return ListView(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 100.0),
+          child: Center(
+            child: Text(weather.location),
+          ),
+        ),
+        Center(
+          child: Text(weather.lastUpdated.toIso8601String()),
+        ),
+        Padding(
+            padding: EdgeInsets.symmetric(vertical: 50.0), child: Container()),
+      ],
+    );
   }
 }
