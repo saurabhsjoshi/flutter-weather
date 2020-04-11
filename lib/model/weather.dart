@@ -70,6 +70,10 @@ class Weather extends Equatable {
         location,
       ];
 
+  String getIconUrl() {
+    return 'https://www.metaweather.com/static/img/weather/$conditionAbbreviation.svg';
+  }
+
   /// Convert abbreviation to weather condition
   static WeatherCondition _mapStringToWeatherCondition(String input) {
     WeatherCondition state;

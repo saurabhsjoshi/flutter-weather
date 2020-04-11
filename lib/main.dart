@@ -28,7 +28,8 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Weather',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.indigo,
+        accentColor: Colors.pinkAccent,
       ),
       home: BlocProvider(
         create: (context) => WeatherBloc(weatherRepository: weatherRepository),
