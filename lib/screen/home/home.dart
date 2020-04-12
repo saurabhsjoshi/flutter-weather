@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/bloc/bloc.dart';
@@ -5,7 +7,19 @@ import 'package:weather/model/model.dart';
 
 import 'widget/widget.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  Completer<void> _refreshCompleter;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshCompleter = Completer<void>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,21 +46,24 @@ class Home extends StatelessWidget {
   /// Builds the content of the page
   Widget getContent(BuildContext context) {
     return Center(
-      child: BlocBuilder<WeatherBloc, WeatherState>(
-        builder: (context, state) {
-          if (state is WeatherEmpty) {
-            return Center(child: Text('Please select a location'));
+      child: BlocConsumer<WeatherBloc, WeatherState>(
+        listener: (context, state) {
+          if (state is WeatherLoaded) {
+            _refreshCompleter?.complete();
+            _refreshCompleter = Completer();
           }
+        },
+        builder: (context, state) {
           if (state is WeatherLoading) {
             return Center(child: CircularProgressIndicator());
           }
           if (state is WeatherLoaded) {
-            return getWeatherView(state.weather);
+            return getRefreshIndicator(state);
           }
           if (state is WeatherError) {
             return Text(state.message, style: TextStyle(color: Colors.red));
           }
-          return Container();
+          return Center(child: Text('Please select a location'));
         },
       ),
     );
@@ -70,6 +87,20 @@ class Home extends StatelessWidget {
           child: Temperature(weather: weather),
         ),
       ],
+    );
+  }
+
+  Widget getRefreshIndicator(WeatherLoaded state) {
+    return Container(
+      child: RefreshIndicator(
+        onRefresh: () {
+          BlocProvider.of<WeatherBloc>(context).add(
+            RefreshWeather(city: state.weather.location),
+          );
+          return _refreshCompleter.future;
+        },
+        child: getWeatherView(state.weather),
+      ),
     );
   }
 
